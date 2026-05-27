@@ -1,0 +1,15 @@
+streamlit
+python-dotenv
+youtube-transcript-api
+langchain
+langchain-classic
+langchain-community
+langchain-huggingface
+langchain-groq
+langchain-core
+langchain-text-splitters
+faiss-cpu
+tiktoken
+yt-dlp
+deep-translator
+sentence-transformers

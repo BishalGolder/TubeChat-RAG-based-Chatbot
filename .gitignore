@@ -1,0 +1,9 @@
+.env
+.streamlit/secrets.toml
+faiss_youtube_index/
+final_transcript*
+__pycache__/
+*.pyc
+*.vtt
+*.srt
+.venv/
