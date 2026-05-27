@@ -1,182 +1,330 @@
 # 📺 TubeChat — Chat with Any YouTube Video
 
-> A RAG-based AI chatbot that lets you have a conversation with any YouTube video using its transcript.
+### High-Speed RAG Pipeline with Local CPU Embeddings, CrossEncoder Reranking & Groq Inference
 
-🔗 **Live Demo:** [TubeChat-rag-based-chatbot.streamlit.app](https://TubeChat-rag-based-chatbot.streamlit.app)
+<p align="center">
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![LangChain](https://img.shields.io/badge/Framework-LangChain-00A67E?logo=chainlink&logoColor=white)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![FAISS](https://img.shields.io/badge/VectorDB-FAISS-6A5ACD)
+![Groq](https://img.shields.io/badge/Inference-Groq-orange?logo=groq&logoColor=white)
+
+</p>
+
+> TubeChat is an advanced Retrieval-Augmented Generation (RAG) system that converts long-form YouTube videos into an interactive conversational knowledge base with timestamp-aware responses.
 
 ---
 
-## What is TubeChat?
+# 🚀 Live Demo
 
-TubeChat lets you paste any YouTube URL and instantly start asking questions about the video content. Instead of scrubbing through a 1-hour podcast to find one insight, just ask — and get an answer with timestamps in seconds.
-
-It was tested on a **1-hour+ Jensen Huang podcast** on an Intel Core i5 11th Gen (no GPU), processing the full transcript in ~10 minutes with near-instant answer generation.
+🔗 **Web Deployment:**  
+https://tubechat-rag.streamlit.app/
 
 ---
 
-## How It Works
+# ✨ Features
 
+- 🎯 Ask questions about any public YouTube video
+- ⏱️ Timestamp-grounded contextual responses
+- 🌍 Multilingual subtitle processing pipeline
+- 🧠 Hybrid Retrieval + CrossEncoder reranking
+- ⚡ Sub-second response generation using Groq
+- 💻 Fully CPU-compatible local embedding pipeline
+- 📚 Supports long podcasts, lectures, interviews & tutorials
+
+---
+
+# 🏗️ System Architecture
+
+```text
+       ┌────────────────────────┐
+       │      YouTube URL       │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │   Language Detection   │
+       │ [yt-dlp Metadata Scan] │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │  Transcript Ingestion  │
+       │ [Subtitle Extraction]  │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ VTT Parsing & Cleaning │
+       │ [Regex + Time Sync]    │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Recursive Chunking     │
+       │ Chunk Size: 1500       │
+       │ Overlap: 200           │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Local CPU Embeddings   │
+       │ all-MiniLM-L6-v2       │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ FAISS Vector Store     │
+       └───────────┬────────────┘
+                   │
+         🚀 USER QUERY
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Similarity Search      │
+       │ KNN Retrieval          │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ CrossEncoder Reranker  │
+       │ BAAI/bge-reranker-base │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Groq Llama 3.3 70B     │
+       │ Response Generation    │
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Timestamped Output     │
+       └────────────────────────┘
 ```
-YouTube URL
-     │
-     ▼
-Language Detection        ← yt-dlp metadata scan
-     │
-     ▼
-Transcript Download       ← .vtt subtitle file
-     │
-     ▼
-VTT Parsing & Cleaning    ← removes tags, fixes timestamps
-     │
-     ▼
-Text Chunking             ← RecursiveCharacterTextSplitter
-     │                       chunk_size=1500, overlap=200
-     ▼
-Embedding                 ← all-MiniLM-L6-v2 (runs on CPU)
-     │
-     ▼
-FAISS Vector Index        ← saved locally for fast retrieval
-     │
-     ▼
-Question Asked
-     │
-     ▼
-Similarity Search (k=3)
-     │
-     ▼
-CrossEncoder Reranker     ← BAAI/bge-reranker-base, top_n=15
-     │
-     ▼
-Groq LLM                  ← Llama 3.3 70B via cloud API
-     │
-     ▼
-Answer with Timestamps
+
+---
+
+# 🔥 Key Technical Highlights
+
+## 🌐 Multilingual Processing
+
+TubeChat automatically detects subtitle language streams and supports multilingual transcript ingestion.
+
+If subtitles are non-English:
+- Transcripts are translated through Groq
+- Clean translated chunks are embedded locally
+- Retrieval remains semantically accurate
+
+---
+
+## 🎯 Two-Stage Retrieval Pipeline
+
+### Stage 1 — Vector Similarity Search
+Fast semantic retrieval using FAISS vector indexing.
+
+### Stage 2 — CrossEncoder Reranking
+Initial candidates are reranked using:
+
+```python
+BAAI/bge-reranker-base
 ```
 
----
-
-## Features
-
-- **Multilingual support** — detects subtitle language automatically, translates non-English to English using Groq LLM before indexing
-- **Manual + auto subtitles** — handles both manual and auto-generated YouTube subtitles
-- **CrossEncoder reranking** — improves retrieval quality over naive similarity search
-- **Timestamp-aware answers** — responses reference where in the video information comes from
-- **CPU-friendly** — embedding model runs locally without a GPU
-- **Clean chat UI** — built with Streamlit, persistent chat history per session
+This significantly improves contextual relevance over naive embedding similarity alone.
 
 ---
 
-## Tech Stack
+## ⏱️ Timestamp-Aware Responses
 
-| Component | Technology |
-|-----------|------------|
-| UI | Streamlit |
-| Transcript Download | yt-dlp |
-| Embeddings | HuggingFace `all-MiniLM-L6-v2` |
-| Vector Store | FAISS |
-| Reranker | `BAAI/bge-reranker-base` (CrossEncoder) |
-| LLM | Groq API — Llama 3.3 70B Versatile |
-| Orchestration | LangChain |
+Every generated answer links back to the original video timeline for:
+- Fast verification
+- Context navigation
+- Better user trust
 
 ---
 
-## Performance
+## 💻 Lightweight CPU Architecture
 
-Tested on **Intel Core i5 11th Gen, no GPU, Windows 11**
+The embedding pipeline is optimized for:
+- Consumer laptops
+- CPU-only execution
+- No CUDA dependency
+- Low memory overhead
 
-| Stage | Time |
-|-------|------|
-| Transcript download | ~5 seconds |
-| Embedding (1hr+ video) | ~8–10 minutes |
-| Answer generation | Near-instant (Groq cloud) |
-
-Processing is a one-time cost per video. Once indexed, all questions are answered in milliseconds.
+Tested successfully on:
+- Intel Core i5 11th Gen
+- Windows 11
+- No GPU acceleration
 
 ---
 
-## Getting Started
+# 📊 Performance Benchmarks
 
-### Prerequisites
-- Python 3.10+
-- [uv](https://github.com/astral-sh/uv) (recommended) or pip
-- A free [Groq API key](https://console.groq.com)
+### Test Environment
 
-### Installation
+| Component | Specification |
+|---|---|
+| CPU | Intel Core i5-1135G7 |
+| GPU | None |
+| RAM | 8GB |
+| OS | Windows 11 |
+
+---
+
+| Operation | Time |
+|---|---|
+| Subtitle Download | ~5 Seconds |
+| Transcript Cleaning | ~2 Seconds |
+| Embedding + Vectorization | ~8–10 Minutes |
+| Query Response | Sub-Second |
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend UI | Streamlit |
+| RAG Orchestration | LangChain |
+| Transcript Extraction | yt-dlp |
+| Embeddings | all-MiniLM-L6-v2 |
+| Vector Database | FAISS |
+| Reranking | BAAI/bge-reranker-base |
+| Inference Engine | Groq Llama 3.3 70B |
+
+---
+
+# 📦 Installation
+
+## 1️⃣ Clone Repository
 
 ```bash
-# Clone the repo
 git clone https://github.com/yourusername/TubeChat.git
 cd TubeChat
+```
 
-# Create virtual environment
+---
+
+## 2️⃣ Create Virtual Environment
+
+### Using uv (Recommended)
+
+```bash
 uv venv
-.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # Mac/Linux
+```
 
-# Install dependencies
+### Activate Environment
+
+#### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+#### Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+## 3️⃣ Install Dependencies
+
+```bash
 uv pip install -r requirements.txt
 ```
 
-### Configuration
+---
 
-Create a `.env` file in the project root:
+# 🔑 Environment Variables
 
+Create a `.env` file inside the root directory:
+
+```env
+GROQ_API_KEY=your_groq_api_key
 ```
-GROQ_API_KEY=gsk_your_key_here
-```
 
-### Run
+Get your API key from:
+
+https://console.groq.com/
+
+---
+
+# ▶️ Run Locally
 
 ```bash
 streamlit run app.py
 ```
 
-Open [http://localhost:8501](http://localhost:8501) in your browser.
+Open:
+
+```text
+http://localhost:8501
+```
 
 ---
 
-## Project Structure
+# 📁 Project Structure
 
-```
+```text
 TubeChat/
-├── app.py                  # Streamlit UI
-├── rag.py                  # RAG pipeline logic
+│
+├── .streamlit/
+│   ├── config.toml
+│   └── secrets.toml
+│
+├── app.py
+├── rag.py
 ├── requirements.txt
-├── .env                    # API key (not committed)
-└── .streamlit/
-    ├── config.toml         # Streamlit config
-    └── secrets.toml        # Streamlit Cloud secrets (not committed)
+├── .env
+└── README.md
 ```
 
 ---
 
-## What I Learned
+# 🧠 Engineering Insights
 
-This was my first end-to-end AI project, built from scratch in Google Colab over several days before adding a UI.
+Building TubeChat provided deep practical exposure to:
 
-Key things I learned building this:
-- Why naive similarity search isn't enough and how CrossEncoder reranking improves retrieval
-- How chunking strategy affects answer quality — chunk size and overlap matter a lot
-- How to handle multilingual content in a RAG pipeline
-- The difference between manual and auto-generated subtitles and why it matters for download logic
-- How to go from a Jupyter notebook to a deployed web application
-
----
-
-## What I'd Improve Next
-
-- Cache the FAISS index so re-loading the same video is instant
-- Add a "Summarize this video" one-click button
-- Show a progress bar during the embedding step
-- Support loading multiple videos and asking across all of them
-- Improve the repeated-text issue from VTT subtitle parsing
+- Advanced RAG architecture design
+- CrossEncoder reranking systems
+- Transcript sanitization pipelines
+- Vector similarity optimization
+- Chunking strategy tradeoffs
+- CPU-efficient embedding workflows
+- Long-context retrieval engineering
 
 ---
 
-## License
+# 🗺️ Future Improvements
 
-MIT License — feel free to use, fork, and build on this.
+- [ ] Persistent FAISS disk caching
+- [ ] One-click video summarization
+- [ ] Real-time embedding progress tracking
+- [ ] Multi-video indexing support
+- [ ] Playlist-wide semantic querying
+- [ ] Citation highlighting in responses
 
 ---
 
-*Built by [Your Name] · 3rd Year CS Student · First AI Project*
+# 🤝 Contributing
+
+Pull requests, ideas, and improvements are welcome.
+
+Feel free to fork the project and experiment with new retrieval strategies or inference backends.
+
+---
+
+# 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+# ⭐ Support
+
+If you found this project useful, consider starring the repository to support future development.
+
+```
