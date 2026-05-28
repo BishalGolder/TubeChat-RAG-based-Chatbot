@@ -10,6 +10,6 @@ langchain-core
 langchain-text-splitters
 faiss-cpu
 tiktoken
-yyt-dlp>=2026.3.17
+yt-dlp>=2026.3.17
 deep-translator
 sentence-transformers
