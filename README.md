@@ -23,6 +23,12 @@ https://tubechat-rag.streamlit.app/
 
 ---
 
+## ⚠️ Known Limitations
+
+* The hosted demo may occasionally fail to fetch transcripts due to YouTube rate-limiting requests from cloud server IPs.
+* If this happens, clone the repository and run the application locally for reliable transcript extraction.
+
+
 # ✨ Features
 
 - 🎯 Ask questions about any public YouTube video
